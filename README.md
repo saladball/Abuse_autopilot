@@ -1,7 +1,7 @@
 # Abuse_autopilot
 
 ## 사용법
-1. .zip 압축 폴더 압축해제 후 Abuse_autopilot_beta.exe 파일 실행
+1. Abuse_autopilot.zip 압축 폴더 압축해제 후 Abuse_autopilot_beta.exe 파일 실행
 2. 현재 폴더에 {현재 날짜}_재정정보원.csv 파일 생성되어 있을겁니다.
 3. 압축폴더 안에있는 GeoLite2-County.mmdb 파일은 실행파일에 종속되어 있습니다. 지우면 실행되지 않습니다.
 
