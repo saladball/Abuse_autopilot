@@ -5,6 +5,7 @@ import re
 from socket import getaddrinfo
 import geoip2.database
 import datetime
+import pandas as pd
 
 i = 1
 
@@ -293,9 +294,29 @@ domain_name_regex = re.compile(r'(?:(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-
 ips = [domain for domain in unique_domains if ip_regex.fullmatch(domain)]
 domains = [domain for domain in unique_domains if domain_name_regex.fullmatch(domain)]
 
+# 중복체크.xlsx 파일과 비교하기 위해 일단 중복 값 제거된 IP 주소와 도메인 이름을 하나의 리스트로 결합
+check_data = ips + domains
+
+# 중복 체크를 위해 "중복체크.xlsx" 파일을 읽어들입니다.
+check_df = pd.read_excel("중복체크.xlsx", header=None)
+check_list = check_df[0].tolist()
+
+# 중복되지 않은 IP 주소를 저장할 리스트를 생성합니다.
+unique_ips = []
+unique_domains = []
+
+for ip in ips:
+    if ip not in check_list:
+        unique_ips.append(ip)
+
+for domain in domains:
+    if domain not in check_list:
+        unique_domains.append(domain)
+
+
 # 요청된 개수만큼 IP 주소와 도메인 이름 선택
-selected_ips = ips[:198]
-selected_domains = domains[:2] if len(domains) >= 2 else domains
+selected_ips = unique_ips[:198]
+selected_domains = unique_domains[:2] if len(unique_domains) >= 2 else unique_domains
 
 # 선택된 IP 주소와 도메인 이름을 하나의 리스트로 결합
 final_data = selected_ips + selected_domains
@@ -315,7 +336,11 @@ with open(f"{filename}", 'w', newline='', encoding = 'utf-8-sig') as csvfile:
         if ip_regex.fullmatch(domain):
             country_code = get_country(reader, domain)
         else:
-            ip_address = getaddrinfo(domain, None)[0][4][0]
+            try:
+                ip_address = getaddrinfo(domain, None)[0][4][0]
+            except socket.gaierror as e:
+                print(f"Error: {e}")
+                ip_address = None
             country_code = get_country(reader, ip_address)
         country_name = get_korean_country_name(country_code)
         if i <= 198:
