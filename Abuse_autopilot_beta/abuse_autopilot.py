@@ -6,6 +6,8 @@ from socket import getaddrinfo
 import geoip2.database
 import datetime
 
+i = 1
+
 # 국가 코드를 한국어 국가 이름으로 매핑
 country_code_to_korean = {
     'AF': '아프가니스탄',
@@ -308,7 +310,7 @@ filename = f"{today}_재정정보원.csv"
 # 최종 데이터를 CSV 파일로 저장
 with open(f"{filename}", 'w', newline='', encoding = 'utf-8-sig') as csvfile:
     writer = csv.writer(csvfile)
-    writer.writerow(['Domain', 'Country'])
+    writer.writerow(['URL', '공격 IP', '공격국가'])
     for domain in final_data:
         if ip_regex.fullmatch(domain):
             country_code = get_country(reader, domain)
@@ -316,7 +318,11 @@ with open(f"{filename}", 'w', newline='', encoding = 'utf-8-sig') as csvfile:
             ip_address = getaddrinfo(domain, None)[0][4][0]
             country_code = get_country(reader, ip_address)
         country_name = get_korean_country_name(country_code)
-        writer.writerow([domain, country_name])
+        if i <= 198:
+            writer.writerow(['', domain, country_name])
+        else:
+            writer.writerow([domain, '', country_name])
+        i = i+1
 
 # GeoLite2 데이터베이스 닫기
 reader.close()
